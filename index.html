@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тестовая задача</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #ebebeb;
+        }
+
+        .output {
+            max-width: 700px;
+            margin: 180px auto 0;
+            padding: 0 15px;
+        }
+
+        .output__string,
+        .output__info>* {
+            display: none;
+        }
+
+        .randomString {
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+    </style>
+</head>
+
+<body>
+    <section class="output">
+        <div class="output__info">
+            <h2>Оперируемая строка:&nbsp;<span class="randomString"></span></h2>
+            <p>
+                <b>Повторов первого символа:</b>&nbsp;
+                <span class="firstSymbCount"></span>
+            </p>
+            <p>
+                <b>Повторов второго символа:</b>&nbsp;
+                <span class="secondSymbCount"></span>
+            </p>
+            <p>
+                <b>Не измененные символы:</b>&nbsp;
+                <span class="unreplacedSymbCount"></span>
+            </p>
+        </div>
+    </section>
+
+    <script>
+        'use strict';
+
+        let initValue = prompt('Введите любое число', '');
+        let randomStringLength = +
+            initValue; // Преобразовал отдельно, чтобы потом проверить на null в случае отмены или Esc.
+
+        let operationInfo = {
+            randomString: '',
+            firstSymbCount: 0,
+            secondSymbCount: 0,
+            unreplacedSymbCount: 0,
+            setUnreplacedSymbCount(unreplacedSymbols) {
+                this.randomString.split('').forEach(symb => {
+                    unreplacedSymbols.some(s => s === symb) && this.unreplacedSymbCount++;
+                });
+            }
+        }
+
+        const symbols = 'ABDEFGHIJKLMNOQRTUVWYZabcdefghijklmnopqrstuvwxyz0123456789+-_$~';
+
+        const getRandomString = (getRandomInt) => {
+            let random = '';
+            for (let i = 0; i < randomStringLength; i++) {
+                random += symbols[getRandomInt(0, symbols.length - 1)];
+            }
+            return random;
+        };
+
+        function ReplaceWSymb(changeableString, inputSymb, replaceableSymbols) {
+            let repeatCount = 0;
+            if (inputSymb !== null) {
+                if (inputSymb.length > 1) {
+                    alert('Введено более 1 символа');
+                } else {
+                    changeableString = changeableString.split('').map(symb => {
+                        if (replaceableSymbols.some(letter => letter === symb)) {
+                            symb = inputSymb, repeatCount++;
+                        }
+                        return symb;
+                    }).join('');
+                }
+            }
+            return {
+                outputString: changeableString,
+                repeatCount: repeatCount
+            };
+        };
+
+        if (initValue !== null) {
+            if (isNaN(randomStringLength)) {
+                alert('Вы ввели не число');
+            } else {
+                operationInfo.randomString = getRandomString((min, max) => Math.floor(Math.random() * (max - min + 1)) +
+                    min);
+                alert(`Сгенерированная строка: ${operationInfo.randomString}`)
+                infoView();
+                operationInfo.setUnreplacedSymbCount(['+', '-', '_', '$', '~']);
+
+                setTimeout(() => {
+                    let firstReplace = new ReplaceWSymb(operationInfo.randomString,
+                        prompt('Введите один символ для замены букв в строке', ''),
+                        ['A', 'B', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'Q', 'R',
+                            'T', 'U', 'V', 'W', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
+                            'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
+                        ]);
+                    operationInfo.randomString = firstReplace.outputString;
+                    operationInfo.firstSymbCount = firstReplace.repeatCount;
+
+                    infoView(true);
+                }, 0);
+
+                setTimeout(() => {
+                    let secondReplace = new ReplaceWSymb(operationInfo.randomString,
+                        prompt('Введите один символ для замены цифр в строке', ''),
+                        ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
+                    operationInfo.randomString = secondReplace.outputString;
+                    operationInfo.secondSymbCount = secondReplace.repeatCount;
+                    infoView(true);
+                }, 0);
+            }
+        }
+
+        function infoView(isDetails = false) {
+            if (isDetails) {
+                Object.keys(operationInfo).forEach((key => {
+                    let viewElement = document.querySelector(`.${key}`);
+                    if (viewElement) {
+                        viewElement.textContent = operationInfo[key];
+                        viewElement.parentElement.style.display = 'block';
+                    }
+                }));
+            } else {
+                let operationString = document.querySelector('.randomString');
+                operationString.textContent = operationInfo.randomString;
+                operationString.parentElement.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+
+</html>
